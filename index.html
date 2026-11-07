@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suno AI Prompt Studio v5.0</title>
+    <style>
+        :root {
+            --bg-color: #0f0f12;
+            --panel-bg: #16161a;
+            --text-color: #ffffff;
+            --text-secondary: #a0a0aa;
+            --accent-color: #ff4757;
+            --accent-hover: #ff6b81;
+            --border-color: #27272a;
+            --success-color: #2ed573;
+            --success-hover: #26af5f;
+            --midi-color: #3b82f6;
+            --midi-hover: #60a5fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .top-navbar {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            z-index: 1000;
+        }
+
+        .nav-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--accent-color);
+            white-space: nowrap;
+        }
+
+        .nav-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-grow: 1;
+            justify-content: center;
+            max-width: 600px;
+            margin: 0 20px;
+        }
+
+        .nav-slider-container label {
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .nav-slider-container input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .nav-bpm-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent-color);
+            min-width: 75px;
+            text-align: center;
+        }
+
+        .lang-btn {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover {
+            background: var(--border-color);
+        }
+
+        .main-layout {
+            margin-top: 80px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+            height: calc(100vh - 100px);
+        }
+
+        .right-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .output-panel {
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 80px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #0f0f12;
+            color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: none;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .filename-container {
+            display: flex;
+            align-items: center;
+            background: #0f0f12;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .filename-prefix {
+            color: var(--text-secondary);
+            font-family: monospace;
+            user-select: none;
+            padding-left: 4px;
+        }
+
+        .filename-input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            flex-grow: 1;
+            padding: 2px 0;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .action-btn {
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .copy-btn { background: #2f3542; color: white; }
+        .copy-btn:hover { background: #57606f; }
+        .save-btn { background: var(--success-color); color: white; }
+        .save-btn:hover { background: var(--success-hover); }
+        
+        .clear-btn {
+            background: #ff4757;
+            color: white;
+            grid-column: span 2;
+        }
+        .clear-btn:hover { background: #ff6b81; }
+
+        .left-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            padding-left: 10px;
+        }
+
+        .section-panel {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-panel h3 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            color: var(--accent-color);
+            font-size: 16px;
+        }
+
+        .buttons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .tag-btn {
+            background: #1e1e24;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .tag-btn:hover { background: #2d2d35; }
+        .tag-btn.active {
+            background: var(--accent-color);
+            border-color: var(--accent-hover);
+        }
+
+        /* جزء تحميل ملفات الـ MIDI */
+        .midi-box {
+            margin-top: 15px;
+            background: #121214;
+            border: 1px dashed var(--midi-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .midi-btn-label {
+            background: var(--midi-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+        .midi-btn-label:hover { background: var(--midi-hover); }
+
+        .midi-file-input {
+            display: none;
+        }
+
+        .midi-list {
+            margin-top: 10px;
+            text-align: right;
+            font-size: 13px;
+            color: var(--text-secondary);
+            list-style: none;
+            padding: 0;
+        }
+
+        .midi-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1c1c22;
+            padding: 6px 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .midi-del-btn {
+            background: none;
+            border: none;
+            color: #ff4757;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        html[dir="ltr"] .filename-prefix {
+            padding-left: 0;
+            padding-right: 4px;
+        }
+
+        html[dir="ltr"] .midi-list {
+            text-align: left;
+        }
+        
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                height: auto;
+                margin-top: 130px;
+            }
+            .top-navbar {
+                flex-direction: column;
+                height: auto;
+                gap: 10px;
+                padding: 10px;
+            }
+            .nav-slider-container {
+                margin: 0;
+                width: 100%;
+            }
+            .main-layout {
+                display: flex;
+                flex-direction: column-reverse;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="top-navbar">
+    <div class="nav-logo" id="app-title">مساعد كلمات سونو Studio</div>
+    <div class="nav-slider-container">
+        <label id="label-speed">السرعة (BPM):</label>
+        <input type="range" id="bpm-slider" min="60" max="180" value="120" oninput="updateBPM()">
+        <span class="nav-bpm-value"><span id="bpm-num">120</span> BPM</span>
+    </div>
+    <button class="lang-btn" id="lang-toggle" onclick="toggleLanguage()">English</button>
+</nav>
+
+<div class="main-layout">
+    <div class="left-content">
+        <div class="section-panel">
+            <h3 id="title-sec1">1. لوح الاستايلات الموسيقية (Genres)</h3>
+            <div class="buttons-grid" id="genre-buttons"></div>
+        </div>
+
+        <div class="section-panel">
+            <h3 id="title-sec2">2. لوح الآلات والتوزيع (Instruments & Vocals)</h3>
+            <div class="buttons-grid" id="instrument-buttons"></div>
+        </div>
+
+        <div class="section-panel">
+            <h3 id="title-sec3">3. لوح الأجواء والمشاعر (Moods & Ambiance)</h3>
+            <div class="buttons-grid" id="mood-buttons"></div>
+        </div>
+
+        <div class="section-panel">
+            <h3 id="title-sec4">4. الأجيال العشرية والسمة الزمنية (Eras & Timeline)</h3>
+            <div class="buttons-grid" id="era-buttons"></div>
+        </div>
+
+        <!-- اللوح الخامس الجديد: لوحة المذكرة وحفظ كليبات الـ MIDI لكل ستايل -->
+        <div class="section-panel">
+            <h3 id="title-sec5">5. لوحة مكتبة الـ MIDI الشخصية للاستايلات</h3>
+            <p style="font-size:13px; color:var(--text-secondary); margin:0;" id="midi-desc">يمكنك حفظ وربط ملفات الـ MIDI الخاصة بك محلياً بناءً على الاستايل المختار للرجوع إليها لاحقاً عند نقل مشروعك إلى الـ DAW!</p>
+            <div class="midi-box">
+                <label for="midi-upload" class="midi-btn-label" id="midi-btn-txt">اختر ملف MIDI لإضافته للستايل الحالي</label>
+                <input type="file" id="midi-upload" class="midi-file-input" accept=".mid,.midi" onchange="handleMidiUpload(this)">
+                <ul class="midi-list" id="midi-file-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-sidebar">
+        <div class="output-panel">
+            <textarea id="prompt-output" readonly placeholder="سيتم توليد الوصف النهائي هنا تلقائياً..."></textarea>
+            
+            <div class="filename-container">
+                <span class="filename-prefix">SunoAI_Prompt_</span>
+                <input type="text" id="filename-suffix" class="filename-input" value="my_style_track">
+            </div>
+
+            <div class="actions-grid">
+                <button class="action-btn copy-btn" id="btn-copy" onclick="copyPrompt()">نسخ الوصف</button>
+                <button class="action-btn save-btn" id="btn-save" onclick="savePromptAsText()">حفظ كـ النص</button>
+                <button class="action-btn clear-btn" id="btn-clear" onclick="clearAll()">مسح الاختيارات</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const translations = {
+        ar: {
+            title: "مساعد كلمات سونو Studio",
+            speed: "السرعة (BPM):",
+            sec1: "1. لوح الاستايلات الموسيقية (Genres)",
+            sec2: "2. لوح الآلات والتوزيع (Instruments & Vocals)",
+            sec3: "3. لوح الأجواء والمشاعر (Moods & Ambiance)",
+            sec4: "4. الأجيال العشرية والسمة الزمنية (Eras & Timeline)",
+            sec5: "5. لوحة مكتبة الـ MIDI الشخصية للاستايلات",
+            midiDesc: "يمكنك حفظ وربط ملفات الـ MIDI الخاصة بك محلياً بناءً على الاستايل المختار للرجوع إليها لاحقاً عند نقل مشروعك إلى الـ DAW!",
+            midiBtn: "اختر ملف MIDI لإضافته للستايل الحالي",
+            placeholder: "سيتم توليد الوصف النهائي هنا تلقائياً...",
+            copy: "نسخ الوصف",
+            save: "حفظ كـ ملف نصي",
+            clear: "مسح الاختيارات",
+            alertCopy: "تم نسخ الوصف بنجاح!",
+            alertEmpty: "حقل الوصف فارغ، يرجى اختيار بعض العناصر أولاً!",
+            noGenre: "يرجى تحديد ستايل موسيقي واحد على الأقل من اللوح الأول لربط ملف الـ MIDI به!"
+        },
+        en: {
+            title: "Suno AI Prompt Studio",
+            speed: "Tempo (BPM):",
+            sec1: "1. Music Styles & Genres",
+            sec2: "2. Instruments & Vocals Panel",
+            sec3: "3. Moods & Ambiance Panel",
+            sec4: "4. Decade Eras & Timeline",
+            sec5: "5. Local MIDI Library Linker",
+            midiDesc: "You can save and link your local MIDI files based on the selected genre to reference them later when moving your project to a DAW!",
+            midiBtn: "Choose MIDI file to link with current style",
+            placeholder: "The final prompt will be automatically generated here...",
+            copy: "Copy Prompt",
+            save: "Save as Text File",
+            clear: "Clear Selection",
+            alertCopy: "Prompt copied to clipboard!",
+            alertEmpty: "The prompt is empty, select some elements first!",
+            noGenre: "Please select at least one music genre from the first panel to link your MIDI file!"
+        }
+    };
+
+    const dataItems = {
+        genres: [
+            { prompt: "Pop", ar: "بوب", en: "Pop" },
+            { prompt: "Rock", ar: "روك", en: "Rock" },
+            { prompt: "Rap", ar: "راب", en: "Rap" },
+            { prompt: "Electronic", ar: "إلكترونك", en: "Electronic" },
+            { prompt: "Classical", ar: "كلاسيكال", en: "Classical" },
+            { prompt: "Folk", ar: "فلكلور وشعبي", en: "Folk" },
+            { prompt: "Country", ar: "موسيقى ريفية Country", en: "Country" },
+            { prompt: "Jazz", ar: "جاز", en: "Jazz" },
+            { prompt: "Blues", ar: "بلوز", en: "Blues" },
+            { prompt: "Hip Hop", ar: "هيب هوب", en: "Hip Hop" },
+            { prompt: "Latin", ar: "لاتيني", en: "Latin" },
+            { prompt: "Dance", ar: "موسيقى رقص", en: "Dance" },
+            { prompt: "Metal", ar: "ميتال", en: "Metal" },
+            { prompt: "R&B", ar: "آر آند بي", en: "R&B" },
+            { prompt: "Soul", ar: "سول", en: "Soul" },
+            { prompt: "Funk", ar: "فانك", en: "Funk" },
+            { prompt: "Reggae", ar: "ريغي", en: "Reggae" },
+            { prompt: "House", ar: "هاوس", en: "House" },
+            { prompt: "Techno", ar: "تيكنو", en: "Techno" },
+            { prompt: "Trance", ar: "ترانس", en: "Trance" },
+            { prompt: "Lo-Fi", ar: "لو فاي الهادئ", en: "Lo-Fi" }
+        ],
+        instruments: [
+            { prompt: "Guitar", ar: "جيتار", en: "Guitar" },
+            { prompt: "Acoustic Guitar", ar: "جيتار أكوستيك", en: "Acoustic Guitar" },
+            { prompt: "Electric Guitar", ar: "جيتار كهربائي", en: "Electric Guitar" },
+            { prompt: "Piano", ar: "بيانو", en: "Piano" },
+            { prompt: "Bass", ar: "باص جيتار", en: "Bass" },
+            { prompt: "Drums", ar: "طبول (درامز)", en: "Drums" },
+            { prompt: "Violin", ar: "كمان / كمنجة", en: "Violin" },
+            { prompt: "Trumpet", ar: "ترومبيت / بوق", en: "Trumpet" },
+            { prompt: "Synthesizer", ar: "سينثيزايزر", en: "Synthesizer" },
+            { prompt: "Keyboard", ar: "كيبورد / أورج", en: "Keyboard" },
+            { prompt: "Cello", ar: "تشيللو", en: "Cello" },
+            { prompt: "Saxophone", ar: "ساكسفون", en: "Saxophone" },
+            { prompt: "Flute", ar: "ناي / فلوت", en: "Flute" },
+            { prompt: "Male Vocalist", ar: "صوت مغني رجل", en: "Male Vocalist" },
+            { prompt: "Female Vocalist", ar: "صوت مغنية امرأة", en: "Female Vocalist" },
+            { prompt: "Backing Vocals", ar: "كورال خلفي", en: "Backing Vocals" },
+            { prompt: "Instrumental", ar: "معزوفة موسيقية فقط", en: "Instrumental" }
+        ],
+        moods: [
+            { prompt: "Ambient", ar: "محيطي / عائم", en: "Ambient" },
+            { prompt: "Energetic", ar: "حماسي / طاقة", en: "Energetic" },
+            { prompt: "Atmospheric", ar: "جوي عميق", en: "Atmospheric" },
+            { prompt: "Melancholic", ar: "سوداوي / كئيب", en: "Melancholic" },
+            { prompt: "Romantic", ar: "رومانسي", en: "Romantic" },
+            { prompt: "Passionate", ar: "شغوف ومندفع", en: "Passionate" },
+            { prompt: "Dark", ar: "مظلم / غامض", en: "Dark" },
+            { prompt: "Playful", ar: "مرح ولعوب", en: "Playful" },
+            { prompt: "Warm", ar: "دافئ ومريح", en: "Warm" },
+            { prompt: "Aggressive", ar: "هجومي وغاضب", en: "Aggressive" },
+            { prompt: "Bittersweet", ar: "مر حلو / حزن شجي", en: "Bittersweet" },
+            { prompt: "Introspective", ar: "تأملي / داخلي", en: "Introspective" },
+            { prompt: "Dream Pop", ar: "حالم وبوب", en: "Dream Pop" },
+            { prompt: "Ethereal", ar: "أثيري / خيالي", en: "Ethereal" }
+        ],
+        eras: [
+            { prompt: "1960s style", ar: "الستينات 1960s", en: "1960s Style" },
+            { prompt: "1970s style", ar: "السبعينات 1970s", en: "1970s Style" },
+            { prompt: "1980s style", ar: "الثمانينات 1980s", en: "1980s Style" },
+            { prompt: "1990s style", ar: "التسعينات 1990s", en: "1990s Style" },
+            { prompt: "2000s style", ar: "الألفينات 2000s", en: "2000s Style" },
+            { prompt: "2010s style", ar: "جيل 2010s", en: "2010s Style" },
+            { prompt: "2020s style", ar: "جيل 2020s الحديث", en: "2020s Style" }
+        ]
+    };
+
+    let currentLang = 'ar';
+    let selectedTags = new Set();
+    let currentGenreSelection = ""; // لتتبع آخر ستايل تم اختياره
+
+    // الذاكرة التخزينية للميدي المحلي (باستخدام LocalStorage لتظل محفوظة أوفلاين)
+    let midiStorage = JSON.parse(localStorage.getItem('suno_midi_storage')) || {};
+
+    function renderButtons() {
+        renderSection('genre-buttons', dataItems.genres, true);
+        renderSection('instrument-buttons', dataItems.instruments, false);
+        renderSection('mood-buttons', dataItems.moods, false);
+        renderSection('era-buttons', dataItems.eras, false);
+        updateMidiListDisplay();
+    }
+
+    function renderSection(elementId, items, isGenreSection) {
+        const container = document.getElementById(elementId);
+        container.innerHTML = '';
+        items.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = `tag-btn ${selectedTags.has(item.prompt) ? 'active' : ''}`;
+            btn.innerText = currentLang === 'ar' ? item.ar : item.en;
+            btn.onclick = () => {
+                if (isGenreSection) {
+                    currentGenreSelection = item.prompt;
+                }
+                toggleTag(btn, item.prompt);
+                if (isGenreSection) {
+                    updateMidiListDisplay();
+                }
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    function toggleTag(button, promptValue) {
+        if (selectedTags.has(promptValue)) {
+            selectedTags.delete(promptValue);
+            button.classList.remove('active');
+            if (currentGenreSelection === promptValue) {
+                // العثور على ستايل آخر نشط إن وجد
+                const remainingGenres = dataItems.genres.find(g => selectedTags.has(g.prompt));
+                currentGenreSelection = remainingGenres ? remainingGenres.prompt : "";
+            }
+        } else {
+            selectedTags.add(promptValue);
+            button.classList.add('active');
+        }
+        generateFinalPrompt();
+    }
+
+    function updateBPM() {
+        const sliderValue = document.getElementById('bpm-slider').value;
+        document.getElementById('bpm-num').innerText = sliderValue;
+        generateFinalPrompt();
+    }
+
+    function generateFinalPrompt() {
+        const bpmValue = document.getElementById('bpm-slider').value;
+        let tagsArray = Array.from(selectedTags);
+        
+        if(tagsArray.length > 0 || bpmValue != 120) {
+            tagsArray.push(`${bpmValue} BPM`);
+        }
+
+        const outputText = tagsArray.join(', ');
+        document.getElementById('prompt-output').value = outputText;
+    }
+
+    // إدارة ورفع ملفات الـ MIDI وتخزين أسمائها وبياناتها محلياً
+    function handleMidiUpload(input) {
+        if (!currentGenreSelection) {
+            alert(translations[currentLang].noGenre);
+            input.value = "";
+            return;
+        }
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const fileData = e.target.result;
+            if (!midiStorage[currentGenreSelection]) {
+                midiStorage[currentGenreSelection] = [];
+            }
+            midiStorage[currentGenreSelection].push({
+                name: file.name,
+                data: fileData
+            });
+            localStorage.setItem('suno_midi_storage', JSON.stringify(midiStorage));
+            updateMidiListDisplay();
+            input.value = "";
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // تحديث عرض قائمة ملفات الـ MIDI المربوطة بالستايل النشط حالياً
+    function updateMidiListDisplay() {
+        const listContainer = document.getElementById('midi-file-list');
+        listContainer.innerHTML = '';
+        
+        if (!currentGenreSelection || !midiStorage[currentGenreSelection] || midiStorage[currentGenreSelection].length === 0) {
+            const noFileItem = document.createElement('li');
+            noFileItem.style.textAlign = "center";
+            noFileItem.style.padding = "10px";
+            noFileItem.innerText = currentLang === 'ar' ? "لا توجد ملفات MIDI مربوطة بهذا الستايل حالياً." : "No MIDI files linked to this style yet.";
+            listContainer.appendChild(noFileItem);
+            return;
+        }
+
+        midiStorage[currentGenreSelection].forEach((fileObj, index) => {
+            const item = document.createElement('li');
+            item.className = 'midi-item';
+            
+            const nameSpan = document.createElement('a');
+            nameSpan.innerText = fileObj.name;
+            nameSpan.href = fileObj.data;
+            nameSpan.download = fileObj.name;
+            nameSpan.style.color = "var(--midi-hover)";
+            nameSpan.style.textDecoration = "none";
+            
+            const delBtn = document.createElement('button');
+            delBtn.className = 'midi-del-btn';
+            delBtn.innerText = '✕';
+            delBtn.onclick = () => {
+                midiStorage[currentGenreSelection].splice(index, 1);
+                localStorage.setItem('suno_midi_storage', JSON.stringify(midiStorage));
+                updateMidiListDisplay();
+            };
+
+            item.appendChild(nameSpan);
+            item.appendChild(delBtn);
+            listContainer.appendChild(item);
+        });
+    }
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        const docHtml = document.documentElement;
+        
+        if (currentLang === 'ar') {
+            docHtml.setAttribute('dir', 'rtl');
+            docHtml.setAttribute('lang', 'ar');
+            document.getElementById('lang-toggle').innerText = 'English';
+        } else {
+            docHtml.setAttribute('dir', 'ltr');
+            docHtml.setAttribute('lang', 'en');
+            document.getElementById('lang-toggle').innerText = 'العربية';
+        }
+
+        document.getElementById('app-title').innerText = translations[currentLang].title;
+        document.getElementById('label-speed').innerText = translations[currentLang].speed;
+        document.getElementById('title-sec1').innerText = translations[currentLang].sec1;
+        document.getElementById('title-sec2').innerText = translations[currentLang].sec2;
+        document.getElementById('title-sec3').innerText = translations[currentLang].sec3;
+        document.getElementById('title-sec4').innerText = translations[currentLang].sec4;
+        document.getElementById('title-sec5').innerText = translations[currentLang].sec5;
+        document.getElementById('midi-desc').innerText = translations[currentLang].midiDesc;
+        document.getElementById('midi-btn-txt').innerText = translations[currentLang].midiBtn;
+        document.getElementById('prompt-output').placeholder = translations[currentLang].placeholder;
+        document.getElementById('btn-copy').innerText = translations[currentLang].copy;
+        document.getElementById('btn-save').innerText = translations[currentLang].save;
+        document.getElementById('btn-clear').innerText = translations[currentLang].clear;
+
+        renderButtons();
+    }
+
+    function copyPrompt() {
+        const output = document.getElementById('prompt-output');
+        if (!output.value) {
+            alert(translations[currentLang].alertEmpty);
+            return;
+        }
+        output.select();
+        navigator.clipboard.writeText(output.value);
+        alert(translations[currentLang].alertCopy);
+    }
+
+    function savePromptAsText() {
+        const textToWrite = document.getElementById('prompt-output').value;
+        if (!textToWrite) {
+            alert(translations[currentLang].alertEmpty);
+            return;
+        }
+
+        const userSuffix = document.getElementById('filename-suffix').value.trim() || "track";
+        const finalFileName = `SunoAI_Prompt_${userSuffix}.txt`;
+
+        const textFileAsBlob = new Blob([textToWrite], { type: 'text/plain;charset=utf-8' });
+        const downloadLink = document.createElement("a");
+        downloadLink.download = finalFileName;
+        downloadLink.innerHTML = "Download";
+        
+        if (window.webkitURL != null) {
+            downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+        } else {
+            downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+        }
+
+        downloadLink.click();
+    }
+
+    function clearAll() {
+        selectedTags.clear();
+        currentGenreSelection = "";
+        document.getElementById('bpm-slider').value = 120;
+        document.getElementById('bpm-num').innerText = 120;
+        document.getElementById('filename-suffix').value = "my_style_track";
+        renderButtons();
+        generateFinalPrompt();
+    }
+
+    renderButtons();
+</script>
+</body>
+</html>
