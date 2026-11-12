@@ -1,4 +1,4 @@
-# suno_prompt_studio_v5
+# suno_prompt_studio
 A simple tool for crafting style prompts for Suno AI. It allows you to select musical instruments, genres, tempos, and moods—all with a single click—and includes a slider to adjust the song's speed, among many other features. We are currently on version 5, and we look forward to adding even better enhancements in future releases. I hope you find it enjoyable, helpful, and a great time-saver. The generated prompts can be edited directly within the interface, and once finished, you can either export them to a text file or copy the output to paste straight into Suno AI.
 Unlike the previous version, this tool is specifically designed for defining the musical style of a song, rather than its lyrical content, poetic structure, or narrative script.
 This software was developed based on a concept by the Egyptian writer and poet Sameh El-Naggar, with invaluable assistance from Google Gemini.
