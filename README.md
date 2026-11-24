@@ -3,8 +3,8 @@ A simple tool for crafting style prompts for Suno AI. It allows you to select mu
 Unlike the previous version, this tool is specifically designed for defining the musical style of a song, rather than its lyrical content, poetic structure, or narrative script.
 This software was developed based on a concept by the Egyptian writer and poet Sameh El-Naggar, with invaluable assistance from Google Gemini.
 give it a try here
-https://same7san.github.io/suno_prompt_studio_v5/
 
+https://same7san.github.io/suno_prompt_studio_/
 
 برنامج بسيط لإعداد ستايل برومبت لسونو AI , باختيار آلات وستايلات موسيقية , وثمة زمنية , وسلايدر لضبط سرعة الأغنية ,بضغطة ماوس , ومشاعر وأشياء أخرى كثيرة , نحن الآن في الإصدارة الخامسة وإن شاء الله نضيف إضافات أفضل في الإصدارات القادمة , أرجو أن تستمتعوا بها وأن تكون مساعدة وموفرة للوقت , النتائج قابلة للتعديل في موضع الكتابة وبعد الانتهاء يمكن تصدير البرومبت الناتج إلى ملف نصي للاستفادة أو نسخ الناتج مباشرة ولصفة في SunoAI .
 يختلف هذا البرنامج عن البرنامج السابق أن هذا برنامج مخصص لعمل الاستايل الموسيقي للأغنية وليس سياقها الكتابي أو الشعري أو السيناريو الخاص بها كما في البرنامج السابق
